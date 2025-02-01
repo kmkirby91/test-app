@@ -13,10 +13,26 @@ def main():
     if "done" not in st.session_state:
         st.session_state.done = ["Task 5", "Task 6"]
     
-    # Input for adding new tasks
-    new_task = st.text_input("Add a new task:")
-    if st.button("Add Task") and new_task:
-        st.session_state.todo.append(new_task)
+    # Input for adding new task groups (multi-line bulleted list)
+    if "task_input" not in st.session_state:
+        st.session_state.task_input = "- "
+    
+    new_task = st.text_area("Add new task groups (each line automatically starts with a bullet '-'):", value=st.session_state.task_input, key="task_input", height=150)
+    
+    # Ensure each new line starts with a bullet
+    modified_task = "\n".join(["- " + line.lstrip("- ") if line.strip() else "- " for line in new_task.split("\n")])
+    st.session_state.task_input = modified_task
+    
+    if st.button("Add Tasks") and new_task.strip():
+        task_lines = new_task.strip().split("\n")
+        formatted_tasks = [line if line.startswith("-") else "- " + line for line in task_lines]
+        formatted_task = "\n".join(formatted_tasks)
+        
+        if formatted_task:
+            st.session_state.todo.append(formatted_task)  # Preserve line breaks inside the card
+        
+        # Reset the text area after adding tasks
+        st.session_state.task_input = "- "
     
     # Display Kanban columns
     col1, col2, col3 = st.columns(3)
@@ -38,6 +54,7 @@ def main():
         st.session_state.todo = ["Task 1", "Task 2", "Task 3"]
         st.session_state.in_progress = ["Task 4"]
         st.session_state.done = ["Task 5", "Task 6"]
+        st.session_state.task_input = "- "
     
 if __name__ == "__main__":
     main()
