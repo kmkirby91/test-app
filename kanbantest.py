@@ -26,77 +26,87 @@ def add_to_kanban_list(column, text_input_key):
             st.session_state["kanban_board"][column].append(parent_task)
             st.session_state[text_input_key] = ""  # Clear input field
 
-def delete_task(column, index):
-    """Delete a task from a Kanban column."""
-    st.session_state["kanban_board"][column].pop(index)
-
 def kanban_board_page():
-    """Render the Kanban-style board with multi-line tasks and nested subtasks."""
+    """Render the Kanban board with enforced wider columns."""
     st.title("Kanban Board")
 
-    # CSS to ensure compact layout
+    # CSS to force wider columns
     st.markdown(
         """
         <style>
+        .css-1kyxreq {  /* Default Streamlit column container */
+            display: flex;
+            flex-wrap: nowrap;
+        }
+        .css-ocqkz7 {  /* Default Streamlit column */
+            flex: 2 !important;  /* Make columns take twice the normal width */
+        }
+        .kanban-header {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            padding-bottom: 5px;
+            white-space: nowrap;
+        }
+        .stTextArea textarea {
+            min-height: 100px !important;
+        }
         .parent-task {
             margin-bottom: 0px;
-            line-height: 1.2; /* Adjust line height for parent task */
+            line-height: 1.2;
         }
         .subtask {
             margin-left: 20px;
             margin-top: -5px;
             margin-bottom: -5px;
-            line-height: 1.2; /* Adjust line height for subtasks */
+            line-height: 1.2;
         }
         </style>
         """,
         unsafe_allow_html=True,
     )
 
-    # Display and manage each column
-    for column in ["Clinical", "Research", "Teaching", "Outreach", "Other"]:
-        with st.expander(column):
-            # Add task to the column
-            task_input_key = f"{column}_input"
+    # Define Kanban board columns (default Streamlit way)
+    columns = st.columns(5)  # This gets overridden by CSS for width control
+
+    # Iterate through each column
+    for col, section in zip(columns, ["Clinical", "Research", "Teaching", "Outreach", "Other"]):
+        with col:
+            # Properly aligned category titles
+            st.markdown(f"<div class='kanban-header'>{section}</div>", unsafe_allow_html=True)
+
+            # Task input area
+            task_input_key = f"{section}_input"
             st.text_area(
-                f"Add task(s) to {column} (First line is the parent task, subsequent lines are subtasks)",
+                "",
                 key=task_input_key,
                 on_change=add_to_kanban_list,
-                args=(column, task_input_key),
-                height=100,
+                args=(section, task_input_key),
+                height=100,  # Fixed height for alignment
             )
 
             # Display tasks in the column
-            for index, task_data in enumerate(st.session_state["kanban_board"][column]):
+            for task_data in st.session_state["kanban_board"][section]:
                 parent_task = task_data["task"]
                 subtasks = task_data.get("subtasks", [])
 
-                # Parent task row
-                col1, col2 = st.columns([0.9, 0.1])
-                with col1:
+                # Display parent task
+                st.markdown(
+                    f"<p class='parent-task'><strong>- {parent_task}</strong></p>",
+                    unsafe_allow_html=True,
+                )
+
+                # Display subtasks
+                for subtask in subtasks:
                     st.markdown(
-                        f"<p class='parent-task'><strong>- {parent_task}</strong></p>",
+                        f"<p class='subtask'>- {subtask}</p>",
                         unsafe_allow_html=True,
                     )
-                with col2:
-                    if st.button("🗑", key=f"{column}_{index}_delete"):
-                        delete_task(column, index)
-
-                # Subtasks
-                if subtasks:
-                    for subtask in subtasks:
-                        st.markdown(
-                            f"<p class='subtask'>- {subtask}</p>",
-                            unsafe_allow_html=True,
-                        )
 
 # Main Function
 def main():
     """Main function to display the Kanban Board."""
     st.sidebar.title("Navigation")
-    page = st.sidebar.selectbox("Navigate", ["Kanban Board"])
-
-    if page == "Kanban Board":
-        kanban_board_page()
+    kanban_board_page()
 
 main()
