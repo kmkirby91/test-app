@@ -12,6 +12,14 @@ if "tasks" not in st.session_state:
         "Done": ["Task 6"]
     }
 
+def add_task():
+    new_task = st.session_state.get('new_task_input', '').strip()
+    category = st.session_state.get('new_task_category', 'To Do')
+    if new_task:
+        st.session_state.tasks[category].append(new_task)
+        del st.session_state['new_task_input']  # Clear input field
+        st.rerun()
+
 st.title("📝 Kanban Board")
 
 # Layout
@@ -37,11 +45,9 @@ with col3:
     updated_done = sort_items(st.session_state.tasks["Done"], key="done")
     update_tasks("Done", updated_done)
 
-# Add new task
-st.sidebar.header("Add Task")
-new_task = st.sidebar.text_input("Task Name")
-category = st.sidebar.selectbox("Category", ["To Do", "In Progress", "Done"])
-if st.sidebar.button("Add Task"):
-    if new_task:
-        st.session_state.tasks[category].append(new_task)
-        st.rerun()
+# Add new task in main page
+st.subheader("Add Task")
+st.text_input("Task Name", key="new_task_input", on_change=add_task)
+st.selectbox("Category", ["To Do", "In Progress", "Done"], key="new_task_category")
+if st.button("Add Task"):
+    add_task()
