@@ -29,11 +29,26 @@ col1, col2, col3 = st.columns(3)
 def update_tasks(column, updated_tasks):
     st.session_state.tasks[column] = updated_tasks
 
+# Add new task using a form
+st.subheader("Add Task")
+with st.form(key="add_task_form"):
+    new_task = st.text_input("Task Name")
+    category = st.selectbox("Category", ["To Do", "In Progress", "Done"])
+    submit_button = st.form_submit_button(label="Add Task")
+    
+    if submit_button and new_task.strip():
+        st.session_state.tasks[category].append(new_task.strip())
+
 # Kanban Columns
 with col1:
     st.subheader("To Do")
     updated_todo = sort_items(st.session_state.tasks["To Do"], key="todo")
     update_tasks("To Do", updated_todo)
+    pressme = st.button(label="PRESSME")
+#    if pressme:
+#        st.session_state.tasks["To Do"].append("hellooooo")
+#        updated_todo = sort_items(st.session_state.tasks["To Do"], key="todo")
+#        update_tasks("To Do", updated_todo)
 
 with col2:
     st.subheader("In Progress")
@@ -45,9 +60,13 @@ with col3:
     updated_done = sort_items(st.session_state.tasks["Done"], key="done")
     update_tasks("Done", updated_done)
 
-# Add new task in main page
-st.subheader("Add Task")
-st.text_input("Task Name", key="new_task_input", on_change=add_task)
-st.selectbox("Category", ["To Do", "In Progress", "Done"], key="new_task_category")
-if st.button("Add Task"):
-    add_task()
+with col1:
+        updated_todo2 = sort_items(st.session_state.tasks["To Do"], key="todo2")
+        update_tasks("To Do", updated_todo2)
+
+
+pressme2 = st.button(label="PRESSME2")
+#        st.rerun()
+#        updated_todo2 = sort_items(st.session_state.tasks["To Do"], key="todo2")
+#        update_tasks("To Do", updated_todo2)
+# 2/9/25 button adds to session state but page doesn't refresh
