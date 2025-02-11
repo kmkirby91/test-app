@@ -52,8 +52,8 @@ if submit_button and new_task.strip():
 
 # Kanban Columns
 update_button=st.button(label="Update")
-
-if update_button:
+count2 = 1
+if count2==1:
     with col1:
         st.subheader("To Do")
         # Sort the new list
