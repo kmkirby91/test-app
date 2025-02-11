@@ -18,13 +18,14 @@ if "tasks" not in st.session_state:
         "Done": ["Task 6"]
     }
 
-def add_task():
-    new_task = st.session_state.get('new_task_input', '').strip()
-    category = st.session_state.get('new_task_category', 'To Do')
-    if new_task:
-        st.session_state.tasks[category].append(new_task)
-        del st.session_state['new_task_input']  # Clear input field
-        st.rerun()
+# Am I even using this?
+# def add_task():
+#     new_task = st.session_state.get('new_task_input', '').strip()
+#     category = st.session_state.get('new_task_category', 'To Do')
+#     if new_task:
+#         st.session_state.tasks[category].append(new_task)
+#         del st.session_state['new_task_input']  # Clear input field
+#         st.rerun()
 
 st.title("📝 Kanban Board")
 
@@ -39,16 +40,16 @@ def update_tasks(column, updated_tasks):
 
 # Add new task
 st.subheader("Add Task")
-#with st.form(key="add_task_form"):
 new_task = st.text_input("Task Name")
 category = st.selectbox("Category", ["To Do", "In Progress", "Done"])
 submit_button = st.button(label="Add Task")
-
-if submit_button and new_task.strip():
+if submit_button and new_task.strip() not in st.session_state.tasks[category]:
     st.session_state.tasks[category].append(new_task.strip())
-    st.session_state.my_lst.append(new_task.strip())
+#    st.session_state.my_lst.append(new_task.strip())
 #    st.write( st.session_state['my_lst'] )
-#    st.write(st.session_state.tasks)
+    st.write(st.session_state.tasks)
+elif submit_button and new_task.strip() in st.session_state.tasks[category]:
+    st.write("Duplicate :(")
 
 # Kanban Columns
 update_button=st.button(label="Update")
