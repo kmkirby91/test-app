@@ -9,16 +9,23 @@ if "tasks" not in st.session_state:
         {"header": "Done", "items": ["Task 5"]},
     ]
 
-st.title("📝 Kanban Board with Instant Drag & Drop Updates")
+if "duplicate_message" not in st.session_state:
+    st.session_state.duplicate_message = ""
+
+st.title("📝 Kanban Board with Instant Updates & Duplicate Prevention")
 
 # Function to add a new task
 def add_task():
     new_task = st.session_state.new_task.strip()
     category = st.session_state.task_category
+    st.session_state.duplicate_message = ""  # Reset message
 
     if new_task:
         for column in st.session_state.tasks:
             if column["header"] == category:
+                if new_task in column["items"]:  # Check for duplicates
+                    st.session_state.duplicate_message = "Duplicate :( "
+                    return
                 column["items"].append(new_task)
         st.session_state.new_task = ""  # Clear input field
 
@@ -26,6 +33,10 @@ def add_task():
 st.text_input("New Task:", key="new_task")
 st.selectbox("Select List:", ["To Do", "In Progress", "Done"], key="task_category")
 st.button("➕ Add Task", on_click=add_task)
+
+# Display duplicate message if any
+if st.session_state.duplicate_message:
+    st.error(st.session_state.duplicate_message)  # Show error message
 
 st.divider()
 
